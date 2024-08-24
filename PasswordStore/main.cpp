@@ -6,18 +6,23 @@
 //
 #define _WIN32_WINNT 0x0501
 
+
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #include <iostream>
+#include <string>
+#include <vector>
 
 
+// These should be config parameters
+//
 constexpr PCSTR DEFAULT_PORT = "27015";
-constexpr size_t DEFAULT_BUFLEN = 512;
-constexpr size_t MAX_LINE_LENGTH = 128;
-constexpr size_t MAX_HTML_LENGTH = 1024;
-constexpr size_t MAX_RESPONSE_LENGTH = 1200;
+constexpr size_t DEFAULT_BUFLEN = 2048;
+constexpr size_t MAX_LINE_LENGTH = 256;
+constexpr size_t MAX_HTML_LENGTH = 2048;
+constexpr size_t MAX_RESPONSE_LENGTH = 3072;
 
 
 // Entry Point
@@ -31,8 +36,8 @@ int main(int argc, char** argv)
     int iResult = 0;
     int iSendResult = 0;
 
-    char recvbuf[DEFAULT_BUFLEN];
-    int recvbuflen = DEFAULT_BUFLEN;
+    std::vector<char> recvbuf;
+    recvbuf.resize(DEFAULT_BUFLEN);
 
     // Initialize Winsock
     //
@@ -67,7 +72,7 @@ int main(int argc, char** argv)
         std::cout << "socket failed with error: " << WSAGetLastError() << std::endl;
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Setup the TCP listening socket
@@ -112,12 +117,11 @@ int main(int argc, char** argv)
 
         // Receive client socket request
         //
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        std::cout << "Receive Buffer: " << recvbuf << std::endl;
+        iResult = recv(ClientSocket, recvbuf.data(), recvbuf.size(), 0);
+        std::cout << "Receive Buffer: " << std::string(recvbuf.begin(), recvbuf.end()) << std::endl;
         if (iResult > 0)
         {
             std::cout << "Bytes received: " << iResult << std::endl;
-
             std::cout << "WE GOT A CONNECTION!" << std::endl;
 
             // Number of bytes sent
