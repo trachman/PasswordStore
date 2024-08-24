@@ -1,19 +1,19 @@
 #pragma once
 
+// Includes
+//
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-// Tell windows you are beyond windows xp
-//
-#define _WIN32_WINNT 0x0501
-
+#define _WIN32_WINNT 0x0501     // Tells Windows we are beyond Windows XP (rip)
 
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #include <vector>
+#include "TransactionStatus.h"
 
 
 // Server
@@ -213,6 +213,19 @@ private:
     // False otherwise.
     //
     bool closeClientSocket(void);
+
+    // dispatchCommand
+    // 
+    // Description:
+    // Dispatches the command to the API layer.
+    // 
+    // Arguments:
+    // recvBuffer - The received HTTP Request.
+    // 
+    // Returns:
+    // Transaction Status with the result of the command.
+    //
+    TransactionStatus dispatchCommand(const std::vector<char>& recvBuffer) const;
 
     // Private Data Members
     //

@@ -1,6 +1,9 @@
+// Includes
+//
 #include "Server.h"
 
 #include <iostream>
+
 
 // Anonymous Namespace
 // 
@@ -301,9 +304,14 @@ bool Server::receiveClientSocketRequest(std::vector<char>& recvBuffer)
     {
         std::cout << "Bytes received: " << m_iResult << std::endl;
 
+        this->dispatchCommand(recvBuffer);
+
         // TODO
+        // m_iSendResult is the number of bytes sent to the client.
+        // when we actually have enough infrastructure to send stuff
+        // to the client we will implement this. For now, return 1.
+        //
         m_iSendResult = 1;
-        std::cout << "WE GOT A CONNECTION!" << std::endl;
         std::cout << "Bytes sent: " << m_iSendResult << std::endl;
     }
     else if (m_iResult == 0)
@@ -345,4 +353,22 @@ bool Server::closeClientSocket(void)
     std::cout << "------------- CONNECTION CLOSED ------------------------" << std::endl;
 
     return isSuccessful;
+}
+
+
+// dispatchCommand
+// 
+// Description:
+// Dispatches the command to the API layer.
+// 
+TransactionStatus Server::dispatchCommand(const std::vector<char>& recvBuffer) const
+{
+    const std::string request(recvBuffer.begin(), recvBuffer.end());
+
+    // TODO
+    // Pass request string to API Layer which will dispatch a command to
+    // the application.
+    //
+
+    return TransactionStatus();
 }
