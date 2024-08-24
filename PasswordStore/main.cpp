@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	std::cout << "Hello world!" << std::endl;
+    std::cout << "Hello World!" << std::endl;
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
