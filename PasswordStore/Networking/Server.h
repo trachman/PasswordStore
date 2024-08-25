@@ -227,6 +227,19 @@ private:
     //
     TransactionStatus dispatchCommand(const std::vector<char>& recvBuffer) const;
 
+    // sendResponseToClient
+    // 
+    // Description:
+    // Sends a response to the client given the inputted transaction status.
+    // 
+    // Arguments:
+    // transactionStatus - The response to send the client.
+    // 
+    // Returns:
+    // None.
+    //
+    void sendResponseToClient(const TransactionStatus& transactionStatus);
+
     // Private Data Members
     //
     addrinfo* m_result;
