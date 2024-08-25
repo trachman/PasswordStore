@@ -7,21 +7,15 @@ namespace
 {
     static const std::unordered_map<std::string, CommandType> EndPointToCommand =
     {
-        // Commands when a user is not logged in
-        //
-        {"CreateNewAccount", CommandType::CREATE_NEW_ACCOUNT},
-        {"Login", CommandType::LOGIN},
-
-        // Commands when a user is logged in
-        //
-        {"AddNewService", CommandType::ADD_NEW_SERVICE},
-        {"DeleteExistingService", CommandType::DELETE_EXISTING_SERVICE},
-        {"CopyServiceUsername", CommandType::COPY_SERVICE_USERNAME},
-        {"CopyServicePassword", CommandType::COPY_SERVICE_PASSWORD},
-        {"DeleteAccount", CommandType::DELETE_ACCOUNT},
-        {"Logout", CommandType::LOGOUT}
+        {String::CREATE_NEW_ACCOUNT,        CommandType::CREATE_NEW_ACCOUNT},
+        {String::LOGIN,                     CommandType::LOGIN},
+        {String::ADD_NEW_SERVICE,           CommandType::ADD_NEW_SERVICE},
+        {String::DELETE_EXISTING_SERVICE,   CommandType::DELETE_EXISTING_SERVICE},
+        {String::COPY_SERVICE_USERNAME,     CommandType::COPY_SERVICE_USERNAME},
+        {String::COPY_SERVICE_PASSWORD,     CommandType::COPY_SERVICE_PASSWORD},
+        {String::DELETE_ACCOUNT,            CommandType::DELETE_ACCOUNT},
+        {String::LOGOUT,                    CommandType::LOGOUT}
     };
-
 }
 
 
