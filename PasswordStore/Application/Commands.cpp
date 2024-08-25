@@ -24,6 +24,7 @@ Command::Command(const Data& inputData)
   m_outputData{},
   m_transactionStatus(TransactionStatus())
 {
+    m_transactionStatus.setState(TransactionStatus::State::IN_PROGRESS);
 }
 
 
@@ -36,6 +37,17 @@ TransactionStatus Command::processCommand(void)
     this->closeConnection();
 
     return m_transactionStatus;
+}
+
+
+std::string Command::viewInputDataValue(const std::string& key)
+{
+    if (!m_inputData.count(key))
+    {
+        return "";
+    }
+
+    return m_inputData.at(key);
 }
 
 
@@ -63,6 +75,22 @@ CreateNewAccountCommand::CreateNewAccountCommand(const Data& data)
 
 void CreateNewAccountCommand::do_processCommand(void)
 {
+    // Get inputs
+    //
+    const std::string username = this->viewInputDataValue(String::USERNAME);
+    const std::string password = this->viewInputDataValue(String::PASSWORD);
+
+    // Sanitize Inputs
+    //
+    if (username.empty() || password.empty())
+    {
+        m_transactionStatus.setState(TransactionStatus::State::FAIL);
+        return;
+    }
+
+    // Create SQL String to insert into Account Table
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -74,6 +102,22 @@ LoginCommand::LoginCommand(const Data& data)
 
 void LoginCommand::do_processCommand(void)
 {
+    // Get inputs
+    //
+    const std::string username = this->viewInputDataValue(String::USERNAME);
+    const std::string password = this->viewInputDataValue(String::PASSWORD);
+
+    // Sanitize Inputs
+    //
+    if (username.empty() || password.empty())
+    {
+        m_transactionStatus.setState(TransactionStatus::State::FAIL);
+        return;
+    }
+
+    // Create SQL String to insert into Session Table
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -85,6 +129,9 @@ AddNewServiceCommand::AddNewServiceCommand(const Data& data)
 
 void AddNewServiceCommand::do_processCommand(void)
 {
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -96,6 +143,9 @@ DeleteExistingServiceCommand::DeleteExistingServiceCommand(const Data& data)
 
 void DeleteExistingServiceCommand::do_processCommand(void)
 {
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -107,6 +157,9 @@ CopyServiceUsernameCommand::CopyServiceUsernameCommand(const Data& data)
 
 void CopyServiceUsernameCommand::do_processCommand(void)
 {
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -118,6 +171,9 @@ CopyServicePasswordCommand::CopyServicePasswordCommand(const Data& data)
 
 void CopyServicePasswordCommand::do_processCommand(void)
 {
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -129,6 +185,9 @@ DeleteAccountCommand::DeleteAccountCommand(const Data& data)
 
 void DeleteAccountCommand::do_processCommand(void)
 {
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -140,17 +199,9 @@ LogoutCommand::LogoutCommand(const Data& data)
 
 void LogoutCommand::do_processCommand(void)
 {
-}
-
-
-BlankCommand::BlankCommand(const Data& data)
-: Command(data)
-{
-}
-
-
-void BlankCommand::do_processCommand(void)
-{
+    // TODO
+    //
+    m_transactionStatus.setState(TransactionStatus::State::PASS);
 }
 
 
@@ -182,8 +233,8 @@ std::unique_ptr<Command> Commands::createNew(const Data& fromTheData)
         return std::make_unique<LogoutCommand>(fromTheData);
     case CommandType::UNDEFINED:
     default:
-        return std::make_unique<BlankCommand>(fromTheData);
+        return nullptr;
     }
 
-    return std::make_unique<BlankCommand>(fromTheData);
+    return nullptr;
 }

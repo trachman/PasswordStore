@@ -11,7 +11,7 @@ namespace String
     //
     using Vector = std::vector<std::string>;
 
-    // String Constants
+    // Command String Constants
     //
     static const std::string ENDPOINT =                "Endpoint";
     static const std::string CREATE_NEW_ACCOUNT =      "CreateNewAccount";
@@ -22,6 +22,11 @@ namespace String
     static const std::string COPY_SERVICE_PASSWORD =   "CopyServicePassword";
     static const std::string DELETE_ACCOUNT =          "DeleteAccount";
     static const std::string LOGOUT =                  "Logout";
+
+    // Data String Constants
+    //
+    static const std::string USERNAME = "Username";
+    static const std::string PASSWORD = "Password";
 
     // Helper Methods
     //

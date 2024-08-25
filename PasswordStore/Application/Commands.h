@@ -43,7 +43,8 @@ public:
     TransactionStatus processCommand(void);
 
 protected:
-    const Data& m_inputData;
+    std::string viewInputDataValue(const std::string& key);
+
     Data m_outputData;
     TransactionStatus m_transactionStatus;
 
@@ -51,6 +52,8 @@ private:
     void openConnection(void);
     void closeConnection(void);
     virtual void do_processCommand(void) = 0;
+
+    const Data& m_inputData;
 };
 
 
@@ -140,17 +143,6 @@ public:
 private:
     void do_processCommand(void) override;
     static constexpr CommandType m_type = CommandType::LOGOUT;
-};
-
-
-class BlankCommand : public Command
-{
-public:
-    BlankCommand(const Data& data);
-    BlankCommand(void) = delete;
-private:
-    void do_processCommand(void) override;
-    static constexpr CommandType m_type = CommandType::UNDEFINED;
 };
 
 
