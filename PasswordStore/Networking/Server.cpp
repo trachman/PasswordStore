@@ -296,7 +296,12 @@ bool Server::receiveClientSocketRequest(std::vector<char>& recvBuffer)
 {
     bool isSuccessful = true;
 
-    m_iResult = recv(m_clientSocket, recvBuffer.data(), recvBuffer.size(), 0);
+    constexpr int flags = 0;
+    m_iResult = recv(
+        m_clientSocket,
+        recvBuffer.data(),
+        static_cast<int>(recvBuffer.size()),
+        flags);
 
     std::cout << "Receive Buffer: "
               << std::string(recvBuffer.begin(), recvBuffer.end())
