@@ -5,22 +5,16 @@
 
 Request::Request(const std::string& theRequestString)
 {
-    this->parse(theRequestString);
+    m_command = Commands::createNew(String::explodeRequest(theRequestString));
 }
 
 
-Command Request::viewCommand(void) const
+TransactionStatus Request::dispatchCommand(void)
 {
-    return m_command;
-}
+    if (m_command == nullptr)
+    {
+        return TransactionStatus();
+    }
 
-
-void Request::parse(const std::string& theRequestString)
-{
-    m_data = String::explodeRequest(theRequestString);
-
-    const std::string endPoint = String::endPoint(m_data.at("Endpoint"));
-    const bool endPointIsValid = !endPoint.empty() && EndPointToCommand.count(endPoint);
-
-    m_command = endPointIsValid ? EndPointToCommand.at(endPoint) : Command::UNDEFINED;
+    return m_command->processCommand();
 }
