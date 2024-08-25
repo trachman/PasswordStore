@@ -53,7 +53,7 @@ private:
     void closeConnection(void);
     virtual void do_processCommand(void) = 0;
 
-    const Data& m_inputData;
+    Data m_inputData;
 };
 
 
