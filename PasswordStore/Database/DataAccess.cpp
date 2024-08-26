@@ -88,9 +88,6 @@ TransactionStatus::State DataAccess::login(
     using State = TransactionStatus::State;
     State theResult = State::IN_PROGRESS;
 
-    // 1. Validate the user
-    // 2. Add user to the session table
-    // 
     const std::string validateSql =
         "SELECT * FROM \"Accounts\" "
         "WHERE (\"Username\"='" +
@@ -129,6 +126,39 @@ TransactionStatus::State DataAccess::login(
         }
 
         pqxx::result sessionResult = w.exec(sessionSql);
+        w.commit();
+
+        theResult = State::PASS;
+    }
+    catch (std::exception& e)
+    {
+        errorMessage = e.what();
+
+        theResult = State::FAIL;
+    }
+
+    return theResult;
+}
+
+
+TransactionStatus::State DataAccess::logout(const std::string& username, const std::string& sessionId, std::string& errorMessage)
+{
+    using State = TransactionStatus::State;
+    State theResult = State::IN_PROGRESS;
+
+    const std::string sql =
+        "DELETE FROM \"Session\" "
+        "WHERE \"Username\"='" +
+        username +
+        "' AND \"SessionId\"='" +
+        sessionId +
+        "'";
+
+    try
+    {
+        pqxx::work w(*m_pqxx);
+
+        pqxx::result result = w.exec(sql);
         w.commit();
 
         theResult = State::PASS;

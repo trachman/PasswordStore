@@ -24,6 +24,10 @@ public:
         const std::string& username,
         const std::string& password,
         std::string& errorMessage);
+    TransactionStatus::State logout(
+        const std::string& username,
+        const std::string& sessionId,
+        std::string& errorMessage);
 
 private:
     std::unique_ptr<pqxx::connection> m_pqxx;

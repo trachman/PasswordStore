@@ -248,16 +248,23 @@ bool DeleteAccountCommand::validateData(void)
 LogoutCommand::LogoutCommand(const Data& data)
 : Command(data)
 {
-    m_username    = this->viewInputDataValue(String::USERNAME);
-    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
+    m_username  = this->viewInputDataValue(String::USERNAME);
+    m_sessionId = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
 void LogoutCommand::do_processCommand(void)
 {
-    // TODO
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    using State = TransactionStatus::State;
+
+    std::string errorMessage;
+    const State result = m_dataAccess->logout(
+        m_username,
+        m_sessionId,
+        errorMessage);
+
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
 }
 
 
