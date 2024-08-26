@@ -16,7 +16,11 @@ public:
     DataAccess& operator=(const DataAccess& RHS) = delete;
     DataAccess& operator=(DataAccess&& RHS) = delete;
 
-    TransactionStatus::State addNewAccount(
+    TransactionStatus::State createNewAccount(
+        const std::string& username,
+        const std::string& password,
+        std::string& errorMessage);
+    TransactionStatus::State login(
         const std::string& username,
         const std::string& password,
         std::string& errorMessage);

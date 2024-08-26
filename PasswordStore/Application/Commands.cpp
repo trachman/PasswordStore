@@ -80,7 +80,7 @@ void CreateNewAccountCommand::do_processCommand(void)
     using State = TransactionStatus::State;
 
     std::string errorMessage;
-    const State result = m_dataAccess->addNewAccount(
+    const State result = m_dataAccess->createNewAccount(
         m_username,
         m_password,
         errorMessage);
@@ -106,9 +106,16 @@ LoginCommand::LoginCommand(const Data& data)
 
 void LoginCommand::do_processCommand(void)
 {
-    // TODO
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    using State = TransactionStatus::State;
+
+    std::string errorMessage;
+    const State result = m_dataAccess->login(
+        m_username,
+        m_password,
+        errorMessage);
+
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
 }
 
 
