@@ -34,3 +34,4 @@
 # Build and User Configuration Folders
 PasswordStore/x64
 PasswordStore/.vs
+Config/*
