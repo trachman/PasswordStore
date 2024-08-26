@@ -28,7 +28,13 @@ public:
         const std::string& username,
         const std::string& sessionId,
         std::string& errorMessage);
+    TransactionStatus::State deleteAccount(
+        const std::string& username,
+        const std::string& sessionId,
+        std::string& errorMessage);
 
 private:
+    bool isLoggedIn(const std::string& username, const std::string& sessionId);
+
     std::unique_ptr<pqxx::connection> m_pqxx;
 };

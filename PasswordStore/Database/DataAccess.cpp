@@ -93,7 +93,6 @@ TransactionStatus::State DataAccess::login(
         "WHERE (\"Username\"='" +
         username +
         "')";
-
     const std::string sessionSql =
         "INSERT INTO \"Session\" "
         "VALUES ('" +
@@ -146,12 +145,17 @@ TransactionStatus::State DataAccess::logout(const std::string& username, const s
     using State = TransactionStatus::State;
     State theResult = State::IN_PROGRESS;
 
+    if (!this->isLoggedIn(username, sessionId))
+    {
+        errorMessage = "Requested account is not logged in.";
+        theResult = State::FAIL;
+        return theResult;
+    }
+
     const std::string sql =
         "DELETE FROM \"Session\" "
         "WHERE \"Username\"='" +
         username +
-        "' AND \"SessionId\"='" +
-        sessionId +
         "'";
 
     try
@@ -168,6 +172,90 @@ TransactionStatus::State DataAccess::logout(const std::string& username, const s
         errorMessage = e.what();
 
         theResult = State::FAIL;
+    }
+
+    return theResult;
+}
+
+
+TransactionStatus::State DataAccess::deleteAccount(
+    const std::string& username,
+    const std::string& sessionId,
+    std::string& errorMessage)
+{
+    using State = TransactionStatus::State;
+    State theResult = State::IN_PROGRESS;
+
+    if (!this->isLoggedIn(username, sessionId))
+    {
+        errorMessage = "Requested account is not logged in.";
+        theResult = State::FAIL;
+        return theResult;
+    }
+
+    const std::string accountsSql =
+        "DELETE FROM \"Accounts\" "
+        "WHERE \"Username\"='" +
+        username +
+        "'";
+    const std::string servicesSql =
+        "DELETE FROM \"Services\" "
+        "WHERE \"Username\"='" +
+        username +
+        "'";
+    const std::string sessionSql =
+        "DELETE FROM \"Session\" "
+        "WHERE \"Username\"='" +
+        username +
+        "'";
+
+    try
+    {
+        pqxx::work w(*m_pqxx);
+
+        pqxx::result accountsResult = w.exec(accountsSql);
+        pqxx::result servicesResult = w.exec(servicesSql);
+        pqxx::result sessionResult = w.exec(sessionSql);
+        w.commit();
+
+        theResult = State::PASS;
+    }
+    catch (std::exception& e)
+    {
+        errorMessage = e.what();
+
+        theResult = State::FAIL;
+    }
+
+    return theResult;
+}
+
+
+bool DataAccess::isLoggedIn(const std::string& username, const std::string& sessionId)
+{
+    bool theResult = false;
+
+    const std::string sql =
+        "SELECT * FROM \"Session\" "
+        "WHERE (\"Username\"='" +
+        username +
+        "' AND \"SessionId\"='" +
+        sessionId +
+        "')";
+
+    try
+    {
+        pqxx::work w(*m_pqxx);
+
+        pqxx::result result = w.exec(sql);
+        Rows dbRows = mapResultToDbRows(result);
+        w.commit();
+
+        theResult = !dbRows.empty();
+    }
+    catch (std::exception& e)
+    {
+        theResult = false;
     }
 
     return theResult;

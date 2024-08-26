@@ -226,16 +226,23 @@ bool CopyServicePasswordCommand::validateData(void)
 DeleteAccountCommand::DeleteAccountCommand(const Data& data)
 : Command(data)
 {
-    m_username    = this->viewInputDataValue(String::USERNAME);
-    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
+    m_username  = this->viewInputDataValue(String::USERNAME);
+    m_sessionId = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
 void DeleteAccountCommand::do_processCommand(void)
 {
-    // TODO
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    using State = TransactionStatus::State;
+
+    std::string errorMessage;
+    const State result = m_dataAccess->deleteAccount(
+        m_username,
+        m_sessionId,
+        errorMessage);
+
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
 }
 
 
