@@ -2,10 +2,11 @@
 
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 
 
-std::unordered_map<std::string, std::string> String::explodeRequest(
-    const std::string& theString)
+Data String::explodeRequest(const std::string& theString)
 {
     std::unordered_map<std::string, std::string> result;
 
@@ -21,7 +22,8 @@ std::unordered_map<std::string, std::string> String::explodeRequest(
         if (!line.empty())
         {
             constexpr char delim = ':';
-            const String::Vector data = String::split(line, delim);
+            constexpr size_t offset = 2;
+            const String::Vector data = String::split(line, delim, offset);
 
             if (data.size() == 1)
             {
@@ -43,7 +45,10 @@ std::unordered_map<std::string, std::string> String::explodeRequest(
 }
 
 
-String::Vector String::split(const std::string& theString, const char delim)
+String::Vector String::split(
+    const std::string& theString,
+    const char delim,
+    const size_t offset)
 {
     Vector result;
 
@@ -54,7 +59,6 @@ String::Vector String::split(const std::string& theString, const char delim)
 
     if (index != std::string::npos)
     {
-        constexpr size_t offset = 2;
         result.push_back(theString.substr(0, index));
         result.push_back(theString.substr(index + offset));
     }
@@ -78,4 +82,39 @@ std::string String::endPoint(const std::string& endPointString)
     const size_t secondIndex = subString.find_first_of(space);
 
     return subString.substr(0, secondIndex);
+}
+
+
+std::string String::dbConnectionString(void)
+{
+    std::filesystem::path cwd = std::filesystem::current_path();
+    cwd = cwd / ".." / "Config" / "Configuration.ini";
+
+    Data configData;
+
+    std::ifstream configurationFile(cwd.string());
+
+    std::string line;
+    while (std::getline(configurationFile, line))
+    {
+        constexpr size_t offset = 1;
+        constexpr char delim = '=';
+        const Vector lineData = String::split(line, delim, offset);
+
+        if (lineData.size() == 2)
+        {
+            configData.emplace(lineData.at(0), lineData.at(1));
+        }
+    }
+
+    configurationFile.close();
+
+    std::string dbConnectionString;
+    dbConnectionString += (String::DB_USER + '=' + configData.at(String::DB_USER) + ' ');
+    dbConnectionString += (String::DB_HOST + '=' + configData.at(String::DB_HOST) + ' ');
+    dbConnectionString += (String::DB_PORT + '=' + configData.at(String::DB_PORT) + ' ');
+    dbConnectionString += (String::DB_PASSWORD + '=' + configData.at(String::DB_PASSWORD) + ' ');
+    dbConnectionString += (String::DB_NAME + '=' + configData.at(String::DB_NAME));
+
+    return dbConnectionString;
 }

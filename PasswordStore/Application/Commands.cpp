@@ -1,7 +1,5 @@
 #include "Commands.h"
 
-#include "StringServices.h"
-
 
 namespace
 {
@@ -30,6 +28,12 @@ Command::Command(const Data& inputData)
 
 TransactionStatus Command::processCommand(void)
 {
+    if (!this->validateData())
+    {
+        m_transactionStatus.setState(TransactionStatus::State::FAIL);
+        return m_transactionStatus;
+    }
+
     this->openConnection();
 
     this->do_processCommand();
@@ -44,7 +48,7 @@ std::string Command::viewInputDataValue(const std::string& key)
 {
     if (!m_inputData.count(key))
     {
-        return "";
+        return String::EMPTY_STRING;
     }
 
     return m_inputData.at(key);
@@ -53,77 +57,77 @@ std::string Command::viewInputDataValue(const std::string& key)
 
 void Command::openConnection(void)
 {
-    // TODO
-    // Database
-    //
+    m_dataAccess.emplace();
 }
 
 
 void Command::closeConnection(void)
 {
-    // TODO
-    // Database
-    //
+    m_dataAccess.reset();
 }
 
 
 CreateNewAccountCommand::CreateNewAccountCommand(const Data& data)
 : Command(data)
 {
+    m_username = this->viewInputDataValue(String::USERNAME);
+    m_password = this->viewInputDataValue(String::PASSWORD);
 }
 
 
 void CreateNewAccountCommand::do_processCommand(void)
 {
-    // Get inputs
-    //
-    const std::string username = this->viewInputDataValue(String::USERNAME);
-    const std::string password = this->viewInputDataValue(String::PASSWORD);
+    using State = TransactionStatus::State;
 
-    // Sanitize Inputs
-    //
-    if (username.empty() || password.empty())
-    {
-        m_transactionStatus.setState(TransactionStatus::State::FAIL);
-        return;
-    }
+    std::string errorMessage;
+    const State result = m_dataAccess->addNewAccount(
+        m_username,
+        m_password,
+        errorMessage);
 
-    // Create SQL String to insert into Account Table
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
+}
+
+
+bool CreateNewAccountCommand::validateData(void)
+{
+    return !m_username.empty() && !m_password.empty();
 }
 
 
 LoginCommand::LoginCommand(const Data& data)
 : Command(data)
 {
+    m_username = this->viewInputDataValue(String::USERNAME);
+    m_password = this->viewInputDataValue(String::PASSWORD);
 }
 
 
 void LoginCommand::do_processCommand(void)
 {
-    // Get inputs
-    //
-    const std::string username = this->viewInputDataValue(String::USERNAME);
-    const std::string password = this->viewInputDataValue(String::PASSWORD);
-
-    // Sanitize Inputs
-    //
-    if (username.empty() || password.empty())
-    {
-        m_transactionStatus.setState(TransactionStatus::State::FAIL);
-        return;
-    }
-
-    // Create SQL String to insert into Session Table
+    // TODO
     //
     m_transactionStatus.setState(TransactionStatus::State::PASS);
+}
+
+
+bool LoginCommand::validateData(void)
+{
+    return !m_username.empty() && !m_password.empty();
 }
 
 
 AddNewServiceCommand::AddNewServiceCommand(const Data& data)
 : Command(data)
 {
+    m_serviceName        = this->viewInputDataValue(String::SERVICE_NAME);
+    m_serviceUsername    = this->viewInputDataValue(String::SERVICE_USERNAME);
+    m_servicePassword    = this->viewInputDataValue(String::SERVICE_PASSWORD);
+    m_serviceURL         = this->viewInputDataValue(String::SERVICE_URL);
+    m_serviceDescription = this->viewInputDataValue(String::SERVICE_DESCRIPTION);
+    m_username           = this->viewInputDataValue(String::USERNAME);
+    m_sessionId          = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -135,9 +139,20 @@ void AddNewServiceCommand::do_processCommand(void)
 }
 
 
+bool AddNewServiceCommand::validateData(void)
+{
+    return !m_serviceName.empty() && !m_serviceUsername.empty()
+        && !m_servicePassword.empty() && !m_username.empty()
+        && !m_sessionId.empty();
+}
+
+
 DeleteExistingServiceCommand::DeleteExistingServiceCommand(const Data& data)
 : Command(data)
 {
+    m_serviceName = this->viewInputDataValue(String::SERVICE_NAME);
+    m_username    = this->viewInputDataValue(String::USERNAME);
+    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -149,9 +164,18 @@ void DeleteExistingServiceCommand::do_processCommand(void)
 }
 
 
+bool DeleteExistingServiceCommand::validateData(void)
+{
+    return !m_serviceName.empty() && !m_username.empty() && !m_sessionId.empty();
+}
+
+
 CopyServiceUsernameCommand::CopyServiceUsernameCommand(const Data& data)
 : Command(data)
 {
+    m_serviceName = this->viewInputDataValue(String::SERVICE_NAME);
+    m_username    = this->viewInputDataValue(String::USERNAME);
+    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -163,9 +187,18 @@ void CopyServiceUsernameCommand::do_processCommand(void)
 }
 
 
+bool CopyServiceUsernameCommand::validateData(void)
+{
+    return !m_serviceName.empty() && !m_username.empty() && !m_sessionId.empty();
+}
+
+
 CopyServicePasswordCommand::CopyServicePasswordCommand(const Data& data)
 : Command(data)
 {
+    m_serviceName = this->viewInputDataValue(String::SERVICE_NAME);
+    m_username    = this->viewInputDataValue(String::USERNAME);
+    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -177,9 +210,17 @@ void CopyServicePasswordCommand::do_processCommand(void)
 }
 
 
+bool CopyServicePasswordCommand::validateData(void)
+{
+    return !m_serviceName.empty() && !m_username.empty() && !m_sessionId.empty();
+}
+
+
 DeleteAccountCommand::DeleteAccountCommand(const Data& data)
 : Command(data)
 {
+    m_username    = this->viewInputDataValue(String::USERNAME);
+    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -191,9 +232,17 @@ void DeleteAccountCommand::do_processCommand(void)
 }
 
 
+bool DeleteAccountCommand::validateData(void)
+{
+    return !m_username.empty() && !m_sessionId.empty();
+}
+
+
 LogoutCommand::LogoutCommand(const Data& data)
 : Command(data)
 {
+    m_username    = this->viewInputDataValue(String::USERNAME);
+    m_sessionId   = this->viewInputDataValue(String::SESSION_ID);
 }
 
 
@@ -202,6 +251,12 @@ void LogoutCommand::do_processCommand(void)
     // TODO
     //
     m_transactionStatus.setState(TransactionStatus::State::PASS);
+}
+
+
+bool LogoutCommand::validateData(void)
+{
+    return !m_username.empty() && !m_sessionId.empty();
 }
 
 

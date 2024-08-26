@@ -2,11 +2,11 @@
 
 #include <memory>
 #include <string>
+#include <optional>
 #include <unordered_map>
+#include "DataAccess.h"
+#include "StringServices.h"
 #include "TransactionStatus.h"
-
-
-using Data = std::unordered_map<std::string, std::string>;
 
 
 enum class CommandType
@@ -41,12 +41,14 @@ public:
     Command& operator=(Command&& RHS) = delete;
 
     TransactionStatus processCommand(void);
+    virtual bool validateData(void) = 0;
 
 protected:
     std::string viewInputDataValue(const std::string& key);
 
     Data m_outputData;
     TransactionStatus m_transactionStatus;
+    std::optional<DataAccess> m_dataAccess;
 
 private:
     void openConnection(void);
@@ -64,8 +66,11 @@ public:
     CreateNewAccountCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
 
     static constexpr CommandType m_type = CommandType::CREATE_NEW_ACCOUNT;
+    std::string m_username;
+    std::string m_password;
 };
 
 
@@ -76,7 +81,10 @@ public:
     LoginCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::LOGIN;
+    std::string m_username;
+    std::string m_password;
 };
 
 
@@ -87,7 +95,15 @@ public:
     AddNewServiceCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::ADD_NEW_SERVICE;
+    std::string m_serviceName;
+    std::string m_serviceUsername;
+    std::string m_servicePassword;
+    std::string m_serviceURL;
+    std::string m_serviceDescription;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
@@ -98,7 +114,11 @@ public:
     DeleteExistingServiceCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::DELETE_EXISTING_SERVICE;
+    std::string m_serviceName;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
@@ -109,7 +129,11 @@ public:
     CopyServiceUsernameCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::COPY_SERVICE_USERNAME;
+    std::string m_serviceName;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
@@ -120,7 +144,11 @@ public:
     CopyServicePasswordCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::COPY_SERVICE_PASSWORD;
+    std::string m_serviceName;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
@@ -131,7 +159,10 @@ public:
     DeleteAccountCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::DELETE_ACCOUNT;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
@@ -142,7 +173,10 @@ public:
     LogoutCommand(void) = delete;
 private:
     void do_processCommand(void) override;
+    bool validateData(void) override;
     static constexpr CommandType m_type = CommandType::LOGOUT;
+    std::string m_username;
+    std::string m_sessionId;
 };
 
 
