@@ -30,6 +30,7 @@ TransactionStatus Command::processCommand(void)
 {
     if (!this->validateData())
     {
+        m_transactionStatus.setErrorMessage("Invalid data.");
         m_transactionStatus.setState(TransactionStatus::State::FAIL);
         return m_transactionStatus;
     }
