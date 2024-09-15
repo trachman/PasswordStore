@@ -16,6 +16,7 @@ public:
     DataAccess& operator=(const DataAccess& RHS) = delete;
     DataAccess& operator=(DataAccess&& RHS) = delete;
 
+    // DATABASE COMMANDS
     TransactionStatus::State createNewAccount(
         const std::string& username,
         const std::string& password,
@@ -29,6 +30,20 @@ public:
         const std::string& sessionId,
         std::string& errorMessage);
     TransactionStatus::State deleteAccount(
+        const std::string& username,
+        const std::string& sessionId,
+        std::string& errorMessage);
+    TransactionStatus::State addNewService(
+        const std::string& serviceName,
+        const std::string& serviceUsername,
+        const std::string& servicePassword,
+        const std::string& serviceURL,
+        const std::string& serviceDescription,
+        const std::string& username,
+        const std::string& sessionId,
+        std::string& errorMessage);
+    TransactionStatus::State deleteExistingService(
+        const std::string& serviceName,
         const std::string& username,
         const std::string& sessionId,
         std::string& errorMessage);

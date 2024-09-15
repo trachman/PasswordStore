@@ -5,6 +5,13 @@
 #include "StringServices.h"
 
 
+// TODO
+// 1. Data Sanitization to avoid SQL injection.
+// 2. Create a base class for commands that need to check if
+//    we are logged in or not before executing them.
+// 3. UUID generation.
+//
+
 namespace
 {
     using Row  = std::vector<std::string>;
@@ -216,6 +223,102 @@ TransactionStatus::State DataAccess::deleteAccount(
         pqxx::result accountsResult = w.exec(accountsSql);
         pqxx::result servicesResult = w.exec(servicesSql);
         pqxx::result sessionResult = w.exec(sessionSql);
+        w.commit();
+
+        theResult = State::PASS;
+    }
+    catch (std::exception& e)
+    {
+        errorMessage = e.what();
+
+        theResult = State::FAIL;
+    }
+
+    return theResult;
+}
+
+
+TransactionStatus::State DataAccess::addNewService(
+    const std::string& serviceName,
+    const std::string& serviceUsername,
+    const std::string& servicePassword,
+    const std::string& serviceURL,
+    const std::string& serviceDescription,
+    const std::string& username,
+    const std::string& sessionId,
+    std::string& errorMessage)
+{
+    using State = TransactionStatus::State;
+    State theResult = State::IN_PROGRESS;
+
+    if (!this->isLoggedIn(username, sessionId))
+    {
+        errorMessage = "Requested account is not logged in.";
+        theResult = State::FAIL;
+        return theResult;
+    }
+
+    const std::string servicesSql =
+        "INSERT INTO \"Services\" "
+        "VALUES ('" +
+        serviceName +
+        "','" +
+        serviceUsername +
+        "','" +
+        servicePassword +
+        "','" +
+        serviceURL +
+        "','" +
+        serviceDescription +
+        "','" +
+        username +
+        "')";
+
+    try
+    {
+        pqxx::work w(*m_pqxx);
+
+        pqxx::result servicesResult = w.exec(servicesSql);
+        w.commit();
+
+        theResult = State::PASS;
+    }
+    catch (std::exception& e)
+    {
+        errorMessage = e.what();
+
+        theResult = State::FAIL;
+    }
+
+    return theResult;
+}
+
+
+TransactionStatus::State DataAccess::deleteExistingService(const std::string& serviceName, const std::string& username, const std::string& sessionId, std::string& errorMessage)
+{
+    using State = TransactionStatus::State;
+    State theResult = State::IN_PROGRESS;
+
+    if (!this->isLoggedIn(username, sessionId))
+    {
+        errorMessage = "Requested account is not logged in.";
+        theResult = State::FAIL;
+        return theResult;
+    }
+
+    const std::string servicesSql =
+        "DELETE FROM \"Services\" "
+        "WHERE \"Service Name\"='" +
+        serviceName +
+        "' AND \"Username\"='" +
+        username +
+        "'";
+
+    try
+    {
+        pqxx::work w(*m_pqxx);
+
+        pqxx::result servicesResult = w.exec(servicesSql);
         w.commit();
 
         theResult = State::PASS;

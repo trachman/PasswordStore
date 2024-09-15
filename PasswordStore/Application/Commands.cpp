@@ -1,6 +1,10 @@
 #include "Commands.h"
 
 
+// TODO
+// 1. Encryption for passwords
+//
+
 namespace
 {
     static const std::unordered_map<std::string, CommandType> EndPointToCommand =
@@ -141,9 +145,21 @@ AddNewServiceCommand::AddNewServiceCommand(const Data& data)
 
 void AddNewServiceCommand::do_processCommand(void)
 {
-    // TODO
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    using State = TransactionStatus::State;
+
+    std::string errorMessage;
+    const State result = m_dataAccess->addNewService(
+        m_serviceName,
+        m_serviceUsername,
+        m_servicePassword,
+        m_serviceURL,
+        m_serviceDescription,
+        m_username,
+        m_sessionId,
+        errorMessage);
+
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
 }
 
 
@@ -166,9 +182,17 @@ DeleteExistingServiceCommand::DeleteExistingServiceCommand(const Data& data)
 
 void DeleteExistingServiceCommand::do_processCommand(void)
 {
-    // TODO
-    //
-    m_transactionStatus.setState(TransactionStatus::State::PASS);
+    using State = TransactionStatus::State;
+
+    std::string errorMessage;
+    const State result = m_dataAccess->deleteExistingService(
+        m_serviceName,
+        m_username,
+        m_sessionId,
+        errorMessage);
+
+    m_transactionStatus.setState(result);
+    m_transactionStatus.setErrorMessage(errorMessage);
 }
 
 
